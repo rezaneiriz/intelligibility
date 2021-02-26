@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trial</title>
+    <link rel="stylesheet" href="css/trial.css" type="text/css"/>
+	<script src="js/trial.js"></script>
+</head>
+<body id="mybody">
+    <div class="container">
+        <div id="pshell">
+            <div id="pindic">
+                <span id="perc">49%</span>
+            </div>
+        </div>
+        <div class="shadowed">
+            <h3>Directions</h3>
+            <p>Please read the following sentence and fill in the blank with your guess. Please do so as soon as you can. Your answer must be an English word spelled correctly. This means that your answers must include alphabetic characters and an apostrophe if needed. Once done, press enter, or click on next to go to the next item.</p>
+        </div>
+        <div class="shadowed tomove">
+            <span id="p1"></span><input type="text" id="answer" autocomplete="off"/><span id="p2"></span>
+            <div><button type="button" onclick="nextItem()" class="btn-primary" id="btnNext">Next</button></div>
+        </div>
+    </div>
+    <div id="wait"></div>
+    <div id="error"></div>
+    <div id="initialDirections">
+        <h1>Directions</h1>
+        <p>
+            Thank you for agreeing to participate in our study! In this session, you will be given several sentences with one blank. Please fill in the blank with your best guess and as fast as possible. Your answer must be an English word spelled correctly. This means that your answers must include alphabetic characters and an apostrophe if needed. When you are ready, click on Start.
+        </p>
+        <button class="btn-primary" onclick="startTest()">Start</button>
+    </div>
+
+
+    <script>
+        var item = <%- item %>;
+        var username = <%- username %>;
+        var sentence = "<%- sentence %>";
+        var total = <%- totalItems %>;
+
+        var ans = document.getElementById('answer');
+        var oo = document.getElementsByClassName('tomove')[0];
+        var btnNext = document.getElementById('btnNext');
+        var screen = document.getElementById('wait');
+        var progressBar = document.getElementById('pindic');
+        var percentage = document.getElementById('perc');
+        var pp1 = document.getElementById('p1');
+        var pp2 = document.getElementById('p2');
+        var merr = document.getElementById('error');
+        var timer = 0;
+        var answering = false;
+
+        sentence = sentence.split('###');
+        pp1.innerHTML = sentence[0];
+        pp2.innerHTML = sentence[1];
+        setPerc();
+        ans.focus();
+
+        ans.addEventListener('keydown', (e)=>{
+            if (e.which == 13){
+                nextItem();
+            }
+        })
+
+        function nextItem(){
+            if (item < total){
+                var reg = /[A-Za-z]+/;
+                if (reg.test(ans.value.trim())){
+					var decisions = spellcheck(ans.value.trim());
+					if (decisions == false){						
+                    	sherr("Pleae enter a valid English word.");
+                    	return;
+					}
+					else if(decisions == true){
+						loadItem();
+					}
+					else{
+							sherr("Did you mean to write <b>" + decisions + "</b>? If so, please correct this spelling and coninute.");
+					}
+                }
+				else{
+					sherr("Pleae enter a valid English word.");                    	
+				}               
+            }
+            else{
+                window.location.href = '/end';
+            }
+        }
+		
+		function loadItem(){
+		 		animateNext();
+                screen.style="display: block";
+                var data = {};
+                data.item = item;
+                data.answer = ans.value;
+                data.time = stopTimer();
+                data.username = username;                
+                var ajax = new XMLHttpRequest();
+                ajax.open("POST", "/addResponse", true);
+                ajax.setRequestHeader("Content-type", "application/json;charset=utf-8");            
+                ajax.onreadystatechange = function() {
+                    if (this.readyState == 4) {
+                        if (this.status == 200){  
+                            screen.style="display: none";                          
+                            var res = JSON.parse(this.responseText);
+                            if (res.result == "success"){
+                                let sentence = res.sentence.split('###');
+                                pp1.innerHTML = sentence[0];
+                                pp2.innerHTML = sentence[1];
+                                item = res.item;
+                                setNext();
+                            }else if(res.result == "end"){
+                                window.location.href = '/end';
+                            }                            
+                            else{
+                                sherr("An error happened");
+                            }
+                        }
+                        else{
+                            sherr("An error happened");
+                            screen.style="display: none";
+                        }
+                    }
+                };
+                ajax.send(JSON.stringify(data));	
+		}
+
+        function animateNext(){            
+            oo.style = "margin-left: -100px; margin-right: 100px; opacity: 0";
+            setTimeout(()=>{
+                oo.style = "margin-left: 100px; margin-right: -100px; opacity: 0";
+            }, 300);
+            ans.disabled = true;
+            btnNext.disabled = true;
+        }
+        function setNext(){
+            setTimeout(()=>{
+                oo.style = "margin-left: 10px; margin-right: 10px; opacity: 1";
+            }, 300);
+            
+            ans.disabled = false;
+            btnNext.disabled = false;
+            ans.value = '';
+            ans.focus();
+            setPerc();
+            startTimer();
+        }
+
+        function setPerc(){
+            let prog = Math.floor((item/total)*100);
+            progressBar.style = `width: ${prog}%`;
+            percentage.innerHTML = `${prog}%`;
+        }
+
+        var mybody = document.getElementById('mybody');
+        mybody.addEventListener('click', ()=>{
+            merr.style = "display: none";
+        })
+
+        function sherr(msg){
+			var myer = document.getElementById('error');											  
+            myer.innerHTML = msg;
+            myer.style = "display: block";
+            window.setTimeout(function(){
+                myer.style="display: none";
+            },2000);
+			return "hello";
+        }
+
+        function tick(){
+            if (answering){
+                setTimeout(()=>{
+                    timer++;
+                    tick();
+                }, 100);
+            }  
+        }
+
+        function startTimer(){
+            timer = 0;
+            answering = true;
+            tick();
+        }
+        function stopTimer(){
+            answering = false;
+            var mytimer = timer;
+            timer = 0;
+            return mytimer;
+        }
+
+        function startTest(){
+            document.getElementById('initialDirections').style = "display: none";
+            startTimer()
+        }
+		
+		
+    </script>
+	
+</body>
+</html>

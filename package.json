@@ -1,0 +1,26 @@
+{
+  "name": "pronunciation",
+  "version": "1.0.0",
+  "description": "Collect data about predicting sentneces",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rezaneiriz/pronunciation.git"
+  },
+  "author": "Reza Neiriz",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rezaneiriz/pronunciation/issues"
+  },
+  "homepage": "https://github.com/rezaneiriz/pronunciation#readme",
+  "dependencies": {
+    "ejs": "^3.1.5",
+    "express": "^4.17.1",
+    "mysql": "^2.18.1",
+    "npx": "^10.2.2"
+  },
+  "devDependencies": {}
+}
