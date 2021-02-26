@@ -21,10 +21,10 @@ server.listen(port, ()=>{
 
 var con = mysql.createConnection({
     host: "localhost",
-      port: "3306",
-    user: "lingute1_int",
-    password: "15Dec1982*",
-      database: "lingute1_intelligibility"
+    port: "3306",
+    user: "dbuser",
+    password: "dbpassword",
+    database: "lingute1_intelligibility"
   });
 
 //Create table for storing answers and response times
