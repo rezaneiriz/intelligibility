@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" onkeypress="captureKey()">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,7 +24,16 @@
         </div>
     </div>
     <div id="wait"></div>
-    <div id="error"></div>
+    <div id="dimmer" onclick="closeWarning()">
+        <div id="error"><span id="close" onclick="closeWarning()">X</span><div id="errorContent"></div></div>
+    </div>
+    <div id="spellPrompt">
+        <div class="content">
+            <div id="promptBody"></div>
+            <input type="button" value="Yes" onclick="replaceSpelling()"/>
+            <input type="button" value="No" onclick="hideAlt()"/>
+        </div>
+    </div>
     <div id="initialDirections">
         <h1>Directions</h1>
         <p>
@@ -48,9 +57,12 @@
         var percentage = document.getElementById('perc');
         var pp1 = document.getElementById('p1');
         var pp2 = document.getElementById('p2');
-        var merr = document.getElementById('error');
+        var merr = document.getElementById('dimmer');
         var timer = 0;
         var answering = false;
+        var splprmpt = document.getElementById('spellPrompt');
+        var altspelling = '';
+        
 
         sentence = sentence.split('###');
         pp1.innerHTML = sentence[0];
@@ -77,7 +89,9 @@
 						loadItem();
 					}
 					else{
-							sherr("Did you mean to write <b>" + decisions + "</b>? If so, please correct this spelling and coninute.");
+                            showAlt(decisions);
+                            altspelling = decisions;
+							//sherr("Did you mean to write <b>" + decisions + "</b>? If so, please correct this spelling and coninute.");
 					}
                 }
 				else{
@@ -160,12 +174,9 @@
         })
 
         function sherr(msg){
-			var myer = document.getElementById('error');											  
+			var myer = document.getElementById('errorContent');											  
             myer.innerHTML = msg;
-            myer.style = "display: block";
-            window.setTimeout(function(){
-                myer.style="display: none";
-            },2000);
+            merr.style = "display: block";
 			return "hello";
         }
 
@@ -195,7 +206,27 @@
             startTimer()
         }
 		
-		
+		function closeWarning(){
+            merr.style="display: none";
+        }
+        document.body.addEventListener('keypress', (e)=>{
+            if (e.key == "Escape"){
+                closeWarning();
+            }
+        });
+        function showAlt(dec){
+            splprmpt.style.display = 'block';
+            document.getElementById('promptBody').innerHTML = "Did you mean <b><i>" + dec + "</i></b>?";
+        }
+
+        function replaceSpelling(){
+            splprmpt.style.display = "none";
+            ans.value = altspelling;
+            ans.focus();
+        }
+        function hideAlt(){
+            splprmpt.style.display = "none";
+        }
     </script>
 	
 </body>

@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const ejs = require('ejs');
 app.set('view engine', 'ejs');
 app.use(express.json());
@@ -22,9 +22,9 @@ server.listen(port, ()=>{
 var con = mysql.createConnection({
     host: "localhost",
     port: "3306",
-    user: "dbuser",
-    password: "dbpassword",
-    database: "lingute1_intelligibility"
+    user: "username",
+    password: "password",
+    database: "database"
   });
 
 //Create table for storing answers and response times
@@ -57,8 +57,8 @@ app.post('/login', (req,res)=>{
 	var item = 0;
     if (username != undefined && username.length > 0){
         if (users.indexOf(username)>-1){
-           var sql = `select max(item) as item from trials where participant = ${username}`;
-			con.query(sql, (err, result, fields)=>{
+           var sql = `select max(item) as item from trials where participant = ?`;
+			con.query(sql, [username], (err, result, fields)=>{
                     if (result[0].item != null){
                         item = result[0].item;
                         item++;                    
@@ -93,8 +93,8 @@ app.get('/:id', (req, res)=>{
     var item = 0;
     if (username != undefined && username.length > 0){
         if (users.indexOf(username)>-1){
-            var sql = `select max(item) as item from trials where participant = ${username}`;
-                con.query(sql, (err, result, fields)=>{
+            var sql = `select max(item) as item from trials where participant = ?`;
+                con.query(sql,[username], (err, result, fields)=>{
                     if (result[0].item != null){
                         item = result[0].item;
                         item++;                    
@@ -125,14 +125,13 @@ app.get('/:id', (req, res)=>{
 app.post('/addResponse', (req, res)=>{
     var key = items[req.body.item].split('#');
     key = key[1];
-    var sql =`insert into trials
-    (participant, item, answer, time, k)
-    values
-    (${req.body.username}, ${req.body.item}, '${req.body.answer}', ${req.body.time}, '${key}')`
+    var sql ='insert into trials (participant, item, answer, time,k) values (?, ?, ?, ?, ?)';
+    let qvals = req.body;
+    let values = [qvals.username, qvals.item, qvals.answer, qvals.time, qvals.key]
 
     var item = ++req.body.item;
 
-        con.query(sql, function(err) {
+        con.query(sql,values, function(err) {
             if (err) {
                 console.log(err);
                 return res.json({"result": "error"});

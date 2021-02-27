@@ -115,7 +115,6 @@ input[type=text]:focus{
     background-color: #990000;
     color: #fff;
     text-align: center;
-    display: none;
     position: absolute;
     z-index: 3;
     left: 50%;
@@ -146,4 +145,41 @@ input[type=text]:focus{
 #initialDirections p{
     width: 50%;
 	text-align: justify;
+}
+#close{
+    position: absolute;
+    right: 3px;
+    top: 3px;
+    cursor: pointer;
+}
+#close:hover{
+    box-shadow: 0px 0px 2px #fff;
+}
+
+#dimmer, #spellPrompt{
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0,0,0, 0.3);
+    top: 0px;
+    left: 0px;
+    display: none;
+}
+#spellPrompt .content{
+    width: 350px;
+    height: auto;
+    background-color: #990000;
+    color: #fff;
+    text-align: center;
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%);
+    transition: all 0.2s ease-out;
+    border-radius: 5px;
+    padding: 20px;
+}
+input[type=button]{
+    margin-top: 10px;    
 }
