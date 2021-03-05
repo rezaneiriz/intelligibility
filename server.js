@@ -16,7 +16,6 @@ server.listen(port, ()=>{
 });
 
 
-
 //Database stuff
 
 var con = mysql.createConnection({
