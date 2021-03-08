@@ -15,7 +15,6 @@ server.listen(port, ()=>{
     console.log('Server running on port 3000...');
 });
 
-
 //Database stuff
 
 var con = mysql.createConnection({
